@@ -6,15 +6,17 @@ An advanced, AI-powered lottery number generator and prediction system built wit
 
 ### Landing Page
 
-![Landing Page](./public/images/Screenshot%202026-01-02%20233020.png)
+![Landing Page](./public/images/Screenshot%202026-01-02%20233003.png)
 
 ### Play Page
 
 ![Play Page](./public/images/Screenshot%202026-01-02%20233011.png)
 
+![Play Page](./public/images/Screenshot%202026-01-02%20233020.png)
+
 ### Generate Page with Matches
 
-![Generate Page with Matches](./public/images/Screenshot%202026-01-02%20233003.png)
+![Generate Page with Matches](./public/images/Screenshot%202026-01-02%20233904.png)
 
 ### Generate Page with No Matches
 
@@ -22,19 +24,15 @@ An advanced, AI-powered lottery number generator and prediction system built wit
 
 ### History Page
 
-![History Page](./public/images/Screenshot%202026-01-02%20233904.png)
+![History Page](./public/images/Screenshot%202026-01-02%20233912.png)
 
 ### Settings Page
 
-![Settings Page](./public/images/Screenshot%202026-01-02%20233912.png)
+![Settings Page](./public/images/Screenshot%202026-01-02%20233921.png)
 
 ### Info Page
 
-![Info Page](./public/images/Screenshot%202026-01-02%20233921.png)
-
-### Mobile View
-
-![Mobile View](./public/images/Screenshot%202026-01-02%20233928.png)
+![Info Page](./public/images/Screenshot%202026-01-02%20233928.png)
 
 ## ✨ Features
 
