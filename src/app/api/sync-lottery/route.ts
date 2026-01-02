@@ -1,55 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-
-const DATA_FILE = path.join(process.cwd(), "data", "generations.json");
+import { readGenerations, writeGenerations } from "@/lib/generations";
+import { Generation } from "@/types/generation";
+import { convertDateToISO } from "@/lib/utils";
 
 interface LotteryDraw {
   date: string;
   numbers: number[];
-}
-
-interface Generation {
-  id: string;
-  numbers: number[];
-  date: string;
-  predictedNumbers?: number[];
-}
-
-async function ensureDataDirectory() {
-  const dataDir = path.join(process.cwd(), "data");
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-}
-
-async function readGenerations(): Promise<Generation[]> {
-  try {
-    await ensureDataDirectory();
-    const fileContent = await fs.readFile(DATA_FILE, "utf-8");
-    return JSON.parse(fileContent);
-  } catch (error) {
-    return [];
-  }
-}
-
-async function writeGenerations(generations: Generation[]) {
-  await ensureDataDirectory();
-  await fs.writeFile(DATA_FILE, JSON.stringify(generations, null, 2), "utf-8");
-}
-
-// Convert date from YYYY.MM.DD to ISO format
-function convertDateToISO(dateStr: string): string {
-  // Handle different date formats
-  if (dateStr.includes('.')) {
-    const [year, month, day] = dateStr.split('.');
-    return new Date(`${year}-${month}-${day}`).toISOString();
-  } else if (dateStr.includes('-')) {
-    return new Date(dateStr).toISOString();
-  }
-  return new Date(dateStr).toISOString();
 }
 
 export async function GET(request: NextRequest) {

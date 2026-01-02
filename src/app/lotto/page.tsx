@@ -2,19 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
-
-interface Generation {
-  id: string;
-  numbers: number[];
-  date: string;
-  predictedNumbers?: number[];
-}
+import { Generation } from "@/types/generation";
+import { formatDate } from "@/lib/utils";
+import { useNumberSelection } from "@/hooks/useNumberSelection";
+import { useHistory } from "@/hooks/useHistory";
 
 export default function LottoPage() {
   const [numbers, setNumbers] = useState<number[]>([]);
   const [history, setHistory] = useState<Generation[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
+  const { selectedNumbers, setSelectedNumbers, toggleNumber, clearSelection: clearNumberSelection } = useNumberSelection(5);
   const [isPredicting, setIsPredicting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -53,41 +50,13 @@ export default function LottoPage() {
     setNumbers([]);
     
     setIsGenerating(true);
-    const newNumbers: number[] = [];
-    while (newNumbers.length < 5) {
-      const num = Math.floor(Math.random() * 99) + 1;
-      if (!newNumbers.includes(num)) {
-        newNumbers.push(num);
-      }
-    }
-    newNumbers.sort((a, b) => a - b);
+    const newNumbers = generateRandomNumbers(5);
     
     setTimeout(() => {
       setNumbers(newNumbers);
       setIsGenerating(false);
-      saveGeneration(newNumbers);
+      saveGeneration(newNumbers, selectedNumbers);
     }, 500);
-  };
-
-  const saveGeneration = async (nums: number[]) => {
-    try {
-      const response = await fetch("/api/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          numbers: nums,
-          date: new Date().toISOString(),
-          predictedNumbers: selectedNumbers.length > 0 ? selectedNumbers : undefined,
-        }),
-      });
-      if (response.ok) {
-        loadHistory();
-      }
-    } catch (error) {
-      console.error("Failed to save generation:", error);
-    }
   };
 
   const autoPredict = async () => {
@@ -106,24 +75,9 @@ export default function LottoPage() {
     }
   };
 
-  const toggleNumber = (num: number) => {
-    setSelectedNumbers((prev) => {
-      if (prev.includes(num)) {
-        // Deselect if already selected
-        return prev.filter((n) => n !== num);
-      } else {
-        // Select if not already selected and less than 5
-        if (prev.length < 5) {
-          return [...prev, num].sort((a, b) => a - b);
-        }
-        return prev;
-      }
-    });
-  };
-
   const clearAll = () => {
     setNumbers([]);
-    setSelectedNumbers([]);
+    clearNumberSelection();
   };
 
   const clearDatabase = async () => {
@@ -138,7 +92,7 @@ export default function LottoPage() {
       if (response.ok) {
         setHistory([]);
         setNumbers([]);
-        setSelectedNumbers([]);
+        clearNumberSelection();
         setCurrentPage(1);
       }
     } catch (error) {
@@ -208,7 +162,7 @@ export default function LottoPage() {
               )}
 
               {/* Number Grid */}
-              <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 max-h-96 overflow-y-auto">
+              <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-slate-300 dark:border-slate-600 max-h-96 overflow-y-auto">
                 <div className="grid grid-cols-10 gap-2">
                   {Array.from({ length: 99 }, (_, i) => i + 1).map((num) => {
                     const isSelected = selectedNumbers.includes(num);
@@ -370,10 +324,10 @@ export default function LottoPage() {
                   {paginatedHistory.map((gen) => (
                     <div
                       key={gen.id}
-                      className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm border border-slate-200 dark:border-slate-700"
+                      className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm border-2 border-slate-300 dark:border-slate-600"
                     >
                       {gen.predictedNumbers && gen.predictedNumbers.length > 0 && (
-                        <div className="mb-3 pb-3 border-b border-slate-200 dark:border-slate-700">
+                        <div className="mb-3 pb-3 border-b-2 border-slate-300 dark:border-slate-600">
                           <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
                             Predicted:
                           </div>
@@ -411,13 +365,7 @@ export default function LottoPage() {
                           })}
                         </div>
                         <span className="text-xs text-slate-500 dark:text-slate-400">
-                          {new Date(gen.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {formatDate(gen.date)}
                         </span>
                       </div>
                     </div>

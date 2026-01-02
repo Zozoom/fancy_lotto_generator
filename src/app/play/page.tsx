@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useNumberSelection } from "@/hooks/useNumberSelection";
 
 export default function PlayPage() {
-  const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
+  const { selectedNumbers, setSelectedNumbers, toggleNumber, clearSelection } = useNumberSelection(5);
   const [isPredicting, setIsPredicting] = useState(false);
   const router = useRouter();
 
@@ -24,19 +25,6 @@ export default function PlayPage() {
     }
   };
 
-  const toggleNumber = (num: number) => {
-    setSelectedNumbers((prev) => {
-      if (prev.includes(num)) {
-        return prev.filter((n) => n !== num);
-      } else {
-        if (prev.length < 5) {
-          return [...prev, num].sort((a, b) => a - b);
-        }
-        return prev;
-      }
-    });
-  };
-
   const handleGenerate = () => {
     if (selectedNumbers.length === 5) {
       // Pass selected numbers as URL params
@@ -46,12 +34,8 @@ export default function PlayPage() {
     }
   };
 
-  const clearSelection = () => {
-    setSelectedNumbers([]);
-  };
-
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 ml-0 md:ml-64">
+    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 ml-0 md:ml-64">
       <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4">
         <div className="max-w-4xl w-full mx-auto space-y-3 sm:space-y-4 md:space-y-6">
           {/* Header */}
@@ -131,7 +115,7 @@ export default function PlayPage() {
 
               {/* Selected Numbers Display */}
               {selectedNumbers.length > 0 && (
-                <div className="flex justify-center gap-2 sm:gap-3 flex-wrap mt-2 sm:mt-2 md:mt-3 pt-2 sm:pt-2 md:pt-3 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex justify-center gap-2 sm:gap-3 flex-wrap mt-2 sm:mt-2 md:mt-3 pt-2 sm:pt-2 md:pt-3 border-t-2 border-slate-300 dark:border-slate-600">
                   {selectedNumbers.map((num) => (
                     <div
                       key={num}

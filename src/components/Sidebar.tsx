@@ -25,7 +25,7 @@ export default function Sidebar() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border-2 border-slate-300 dark:border-slate-600"
         aria-label="Toggle menu"
       >
         <svg
@@ -62,7 +62,7 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <div
-        className={`fixed left-0 top-0 h-screen w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex-col z-50 transition-transform duration-300 ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-white dark:bg-slate-800 border-r-2 border-slate-300 dark:border-slate-600 flex-col z-50 transition-transform duration-300 ${
           isMobileOpen ? "flex" : "hidden md:flex"
         }`}
       >
@@ -70,7 +70,7 @@ export default function Sidebar() {
       <Link
         href="/"
         onClick={() => setIsMobileOpen(false)}
-        className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+        className="p-4 sm:p-6 border-b-2 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
       >
         <Logo />
       </Link>
@@ -166,7 +166,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Mute Button at Bottom */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+      <div className="p-4 border-t-2 border-slate-300 dark:border-slate-600">
         <button
           onClick={toggleMute}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"

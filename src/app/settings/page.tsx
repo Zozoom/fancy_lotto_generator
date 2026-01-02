@@ -1,13 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-interface Generation {
-  id: string;
-  numbers: number[];
-  date: string;
-  predictedNumbers?: number[];
-}
+import { Generation } from "@/types/generation";
+import { getCurrentISODate } from "@/lib/utils";
+import { useHistory } from "@/hooks/useHistory";
 
 interface LotteryDraw {
   date: string;
@@ -43,7 +39,7 @@ const timeRangeOptions: TimeRange[] = [
 ];
 
 export default function SettingsPage() {
-  const [history, setHistory] = useState<Generation[]>([]);
+  const { history, loadHistory } = useHistory();
   const [isLoading, setIsLoading] = useState(false);
   const [importStatus, setImportStatus] = useState<{ type: "success" | "error" | null; message: string }>({ type: null, message: "" });
   const [lotteryDraws, setLotteryDraws] = useState<LotteryDraw[]>([]);
@@ -52,22 +48,6 @@ export default function SettingsPage() {
   const [syncUrl, setSyncUrl] = useState<string>("https://bet.szerencsejatek.hu/cmsfiles/otos.html");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
-  const loadHistory = async () => {
-    try {
-      const response = await fetch("/api/history");
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data);
-      }
-    } catch (error) {
-      console.error("Failed to load history:", error);
-    }
-  };
-
-  useEffect(() => {
-    loadHistory();
-  }, []);
-
   const exportHistory = () => {
     try {
       const dataStr = JSON.stringify(history, null, 2);
@@ -75,7 +55,7 @@ export default function SettingsPage() {
       const url = URL.createObjectURL(dataBlob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `lottery-history-${new Date().toISOString().split("T")[0]}.json`;
+      link.download = `lottery-history-${getCurrentISODate().split("T")[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -199,7 +179,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 ml-0 md:ml-64">
         <div className="max-w-2xl w-full mx-auto space-y-4 sm:space-y-6 md:space-y-8">
           {/* Header */}
@@ -213,7 +193,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Stats Card */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-4 sm:p-6 border-2 border-slate-300 dark:border-slate-600">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-500 dark:text-slate-400">Total Records</p>
@@ -230,7 +210,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Lottery Sync Section */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-4 sm:p-6 border-2 border-slate-300 dark:border-slate-600">
             <div className="space-y-4">
               <div>
                 <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
@@ -251,7 +231,7 @@ export default function SettingsPage() {
                   value={syncUrl}
                   onChange={(e) => setSyncUrl(e.target.value)}
                   disabled={isSyncing}
-                  className="w-full px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  className="w-full px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-400 dark:border-slate-500 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   placeholder="https://bet.szerencsejatek.hu/cmsfiles/otos.html"
                 />
               </div>
@@ -265,7 +245,7 @@ export default function SettingsPage() {
                   type="button"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   disabled={isSyncing}
-                  className="w-full px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+                  className="w-full px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-400 dark:border-slate-500 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
                 >
                   <span>{timeRangeOptions.find(opt => opt.value === selectedTimeRange)?.label || "Select period"}</span>
                   <svg
@@ -284,7 +264,7 @@ export default function SettingsPage() {
                       className="fixed inset-0 z-10"
                       onClick={() => setIsDropdownOpen(false)}
                     ></div>
-                    <div className="absolute z-20 w-full mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg max-h-[288px] overflow-y-auto" style={{ maxHeight: 'calc(2.5rem * 8)' }}>
+                    <div className="absolute z-20 w-full mt-1 bg-white dark:bg-slate-700 border-2 border-slate-400 dark:border-slate-500 rounded-lg shadow-lg max-h-[288px] overflow-y-auto" style={{ maxHeight: 'calc(2.5rem * 8)' }}>
                       {timeRangeOptions.map((option) => (
                         <button
                           key={option.value}
@@ -333,7 +313,7 @@ export default function SettingsPage() {
                   {lotteryDraws.map((draw, index) => (
                     <div
                       key={index}
-                      className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600"
+                      className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border-2 border-slate-300 dark:border-slate-500"
                     >
                       <div className="space-y-3">
                         <div>
@@ -366,7 +346,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Export & Import Section */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-4 sm:p-6 border-2 border-slate-300 dark:border-slate-600">
             <div className="space-y-4">
               <div>
                 <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
@@ -392,7 +372,7 @@ export default function SettingsPage() {
               {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-300 dark:border-slate-600"></div>
+                  <div className="w-full border-t-2 border-slate-400 dark:border-slate-500"></div>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-white dark:bg-slate-800 px-2 text-slate-500 dark:text-slate-400">Or</span>
@@ -413,7 +393,7 @@ export default function SettingsPage() {
                     className="hidden"
                     id="import-file"
                   />
-                  <div className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-semibold hover:bg-slate-200 dark:hover:bg-slate-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 dark:border-slate-600">
+                  <div className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-semibold hover:bg-slate-200 dark:hover:bg-slate-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border-2 border-dashed border-slate-400 dark:border-slate-500">
                     {isLoading ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-600 dark:border-slate-300"></div>
@@ -438,8 +418,8 @@ export default function SettingsPage() {
             <div
               className={`p-4 rounded-lg border ${
                 importStatus.type === "success"
-                  ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200"
-                  : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200"
+                  ? "bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 text-green-800 dark:text-green-200"
+                  : "bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 text-red-800 dark:text-red-200"
               }`}
             >
               <div className="flex items-center gap-2">

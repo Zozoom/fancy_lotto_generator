@@ -4,72 +4,28 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import confetti from "canvas-confetti";
 import { useSound } from "@/contexts/SoundContext";
-
-interface Generation {
-  id: string;
-  numbers: number[];
-  date: string;
-  predictedNumbers?: number[];
-}
+import { Generation } from "@/types/generation";
+import { generateRandomNumbers } from "@/lib/utils";
+import { useHistory } from "@/hooks/useHistory";
 
 export default function GeneratePage() {
   const router = useRouter();
-  const { isMuted } = useSound();
+  const { playWinSound, playLoseSound } = useSound();
+  const { history, loadHistory, saveGeneration } = useHistory();
   const [numbers, setNumbers] = useState<number[]>([]);
-  const [history, setHistory] = useState<Generation[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
 
-  const loadHistory = async () => {
-    try {
-      const response = await fetch("/api/history");
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data);
-      }
-    } catch (error) {
-      console.error("Failed to load history:", error);
-    }
-  };
-
-  const saveGeneration = useCallback(async (nums: number[]) => {
-    try {
-      const response = await fetch("/api/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          numbers: nums,
-          date: new Date().toISOString(),
-          predictedNumbers: selectedNumbers.length > 0 ? selectedNumbers : undefined,
-        }),
-      });
-      if (response.ok) {
-        loadHistory();
-      }
-    } catch (error) {
-      console.error("Failed to save generation:", error);
-    }
-  }, [selectedNumbers]);
-
   const generateNumbers = useCallback(() => {
     setIsGenerating(true);
-    const newNumbers: number[] = [];
-    while (newNumbers.length < 5) {
-      const num = Math.floor(Math.random() * 99) + 1;
-      if (!newNumbers.includes(num)) {
-        newNumbers.push(num);
-      }
-    }
-    newNumbers.sort((a, b) => a - b);
+    const newNumbers = generateRandomNumbers(5);
     
     setTimeout(() => {
       setNumbers(newNumbers);
       setIsGenerating(false);
-      saveGeneration(newNumbers);
+      saveGeneration(newNumbers, selectedNumbers);
     }, 500);
-  }, [saveGeneration]);
+  }, [saveGeneration, selectedNumbers]);
 
   useEffect(() => {
     // Get selected numbers from URL params
@@ -91,139 +47,6 @@ export default function GeneratePage() {
     }
   }, [selectedNumbers, numbers.length, isGenerating, generateNumbers]);
 
-  // Play sound using Web Audio API
-  const playSound = (type: 'celebrate' | 'sad') => {
-    if (isMuted) return; // Don't play sound if muted
-    
-    try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-
-      if (type === 'celebrate') {
-        // More celebratory winning sound - triumphant fanfare with multiple layers
-        // First layer: Major chord progression
-        const chord1 = [
-          { freq: 523.25, time: 0 },    // C5
-          { freq: 659.25, time: 0 },    // E5 (simultaneous)
-          { freq: 783.99, time: 0 },    // G5 (simultaneous)
-        ];
-        
-        const chord2 = [
-          { freq: 659.25, time: 0.15 }, // E5
-          { freq: 783.99, time: 0.15 }, // G5 (simultaneous)
-          { freq: 987.77, time: 0.15 }, // B5 (simultaneous)
-        ];
-        
-        const chord3 = [
-          { freq: 783.99, time: 0.3 },  // G5
-          { freq: 987.77, time: 0.3 },  // B5 (simultaneous)
-          { freq: 1174.66, time: 0.3 }, // D6 (simultaneous)
-        ];
-
-        // Play first chord
-        chord1.forEach((note) => {
-          const osc = audioContext.createOscillator();
-          const gain = audioContext.createGain();
-          osc.connect(gain);
-          gain.connect(audioContext.destination);
-          osc.frequency.value = note.freq;
-          osc.type = 'sine';
-          gain.gain.setValueAtTime(0.35, audioContext.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-          osc.start(audioContext.currentTime);
-          osc.stop(audioContext.currentTime + 0.5);
-        });
-
-        // Play second chord
-        setTimeout(() => {
-          chord2.forEach((note) => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.frequency.value = note.freq;
-            osc.type = 'sine';
-            gain.gain.setValueAtTime(0.35, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            osc.start(audioContext.currentTime);
-            osc.stop(audioContext.currentTime + 0.5);
-          });
-        }, 150);
-
-        // Play third chord
-        setTimeout(() => {
-          chord3.forEach((note) => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.frequency.value = note.freq;
-            osc.type = 'sine';
-            gain.gain.setValueAtTime(0.35, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            osc.start(audioContext.currentTime);
-            osc.stop(audioContext.currentTime + 0.5);
-          });
-        }, 300);
-
-        // Add celebratory sparkle with ascending arpeggio
-        setTimeout(() => {
-          [1046.50, 1318.51, 1567.98, 1975.53].forEach((freq, i) => {
-            setTimeout(() => {
-              const osc = audioContext.createOscillator();
-              const gain = audioContext.createGain();
-              osc.connect(gain);
-              gain.connect(audioContext.destination);
-              osc.frequency.value = freq;
-              osc.type = 'triangle';
-              gain.gain.setValueAtTime(0.25, audioContext.currentTime);
-              gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-              osc.start(audioContext.currentTime);
-              osc.stop(audioContext.currentTime + 0.3);
-            }, i * 60);
-          });
-        }, 600);
-      } else {
-        // Sad sound - descending minor notes with a low rumble
-        const sadNotes = [
-          { freq: 293.66, time: 0 },    // D4
-          { freq: 261.63, time: 0.2 }, // C4
-          { freq: 233.08, time: 0.4 }, // Bb3
-          { freq: 196.00, time: 0.6 }, // G3
-        ];
-
-        sadNotes.forEach((note) => {
-          setTimeout(() => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.frequency.value = note.freq;
-            osc.type = 'sawtooth';
-            gain.gain.setValueAtTime(0.25, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            osc.start(audioContext.currentTime);
-            osc.stop(audioContext.currentTime + 0.5);
-          }, note.time * 1000);
-        });
-
-        // Add low rumble
-        setTimeout(() => {
-          const osc = audioContext.createOscillator();
-          const gain = audioContext.createGain();
-          osc.connect(gain);
-          gain.connect(audioContext.destination);
-          osc.frequency.value = 98.00; // G2 - low rumble
-          osc.type = 'sawtooth';
-          gain.gain.setValueAtTime(0.15, audioContext.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
-          osc.start(audioContext.currentTime);
-          osc.stop(audioContext.currentTime + 0.8);
-        }, 600);
-      }
-    } catch (e) {
-      // Ignore errors
-    }
-  };
 
   // Trigger confetti and sounds when numbers are generated
   useEffect(() => {
@@ -273,17 +96,17 @@ export default function GeneratePage() {
             });
           }, 250);
 
-          // Play celebrate sound
-          playSound('celebrate');
+          // Play win sound
+          playWinSound();
         } else {
-          // Sad sound for no matches
-          playSound('sad');
+          // Play lose sound for no matches
+          playLoseSound();
         }
       }, 300);
       
       return () => clearTimeout(timer);
     }
-  }, [numbers, selectedNumbers]);
+  }, [numbers, selectedNumbers, playWinSound, playLoseSound]);
 
   // Calculate statistics
   const calculateStats = () => {
@@ -345,10 +168,7 @@ export default function GeneratePage() {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 ml-0 md:ml-64 relative" style={{
-      backgroundImage: `radial-gradient(circle at 2px 2px, rgba(16, 185, 129, 0.15) 1px, transparent 0)`,
-      backgroundSize: '40px 40px'
-    }}>
+    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 ml-0 md:ml-64">
       <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4">
           <div className="max-w-2xl w-full mx-auto space-y-4 sm:space-y-6 md:space-y-8">
             {/* Header */}
@@ -437,7 +257,7 @@ export default function GeneratePage() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Total Predictions */}
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-slate-300 dark:border-slate-600">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Total Predictions</p>
@@ -454,7 +274,7 @@ export default function GeneratePage() {
                   </div>
 
                   {/* Accuracy */}
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-slate-300 dark:border-slate-600">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Accuracy</p>
@@ -471,7 +291,7 @@ export default function GeneratePage() {
                   </div>
 
                   {/* Total Matches */}
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-slate-300 dark:border-slate-600">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Total Matches</p>
@@ -491,7 +311,7 @@ export default function GeneratePage() {
                   </div>
 
                   {/* Total Misses */}
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-slate-300 dark:border-slate-600">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Total Misses</p>
@@ -508,7 +328,7 @@ export default function GeneratePage() {
                   </div>
 
                   {/* Perfect Matches */}
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-slate-300 dark:border-slate-600">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Perfect Matches</p>
@@ -528,7 +348,7 @@ export default function GeneratePage() {
                   </div>
 
                   {/* Zero Matches */}
-                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                  <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-slate-300 dark:border-slate-600">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Zero Matches</p>

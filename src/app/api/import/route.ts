@@ -1,29 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-
-const DATA_FILE = path.join(process.cwd(), "data", "generations.json");
-
-interface Generation {
-  id: string;
-  numbers: number[];
-  date: string;
-  predictedNumbers?: number[];
-}
-
-async function ensureDataDirectory() {
-  const dataDir = path.join(process.cwd(), "data");
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-}
-
-async function writeGenerations(generations: Generation[]) {
-  await ensureDataDirectory();
-  await fs.writeFile(DATA_FILE, JSON.stringify(generations, null, 2), "utf-8");
-}
+import { writeGenerations } from "@/lib/generations";
+import { Generation } from "@/types/generation";
 
 export async function POST(request: NextRequest) {
   try {
