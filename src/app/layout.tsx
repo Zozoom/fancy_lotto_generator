@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: "Generate random lottery numbers and track your history with AI-powered predictions",
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/favicon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon.svg", type: "image/svg+xml" },
     ],
   },
 };

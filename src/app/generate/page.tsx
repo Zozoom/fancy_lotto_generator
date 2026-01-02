@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import confetti from "canvas-confetti";
 import { useSound } from "@/contexts/SoundContext";
-import { Generation } from "@/types/generation";
 import { generateRandomNumbers } from "@/lib/utils";
 import { useHistory } from "@/hooks/useHistory";
+import { getNumberColor } from "@/lib/numberColors";
 
 export default function GeneratePage() {
   const router = useRouter();
@@ -50,9 +50,10 @@ export default function GeneratePage() {
 
   // Trigger confetti and sounds when numbers are generated
   useEffect(() => {
-    if (numbers.length > 0 && selectedNumbers.length > 0) {
+    if (numbers.length > 0 && selectedNumbers.length > 0 && !isGenerating) {
       const matches = numbers.filter(num => selectedNumbers.includes(num));
       
+      // Small delay to ensure numbers are rendered
       const timer = setTimeout(() => {
         if (matches.length >= 1) {
           // Celebrate: Confetti over entire page
@@ -99,14 +100,15 @@ export default function GeneratePage() {
           // Play win sound
           playWinSound();
         } else {
-          // Play lose sound for no matches
+          // Play lose sound for no matches - ensure it plays
+          console.log("No matches found, playing lose sound");
           playLoseSound();
         }
-      }, 300);
+      }, 500); // Wait for numbers to be fully rendered
       
       return () => clearTimeout(timer);
     }
-  }, [numbers, selectedNumbers, playWinSound, playLoseSound]);
+  }, [numbers, selectedNumbers, isGenerating, playWinSound, playLoseSound]);
 
   // Calculate statistics
   const calculateStats = () => {
@@ -153,19 +155,6 @@ export default function GeneratePage() {
 
   const stats = calculateStats();
 
-  const getNumberColor = (num: number): string => {
-    if (selectedNumbers.length === 0) {
-      return "bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-600 dark:to-emerald-700";
-    }
-    
-    const isMatched = selectedNumbers.includes(num);
-    
-    if (isMatched) {
-      return "bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-600 dark:to-emerald-700";
-    } else {
-      return "bg-gradient-to-br from-red-700 to-red-800 dark:from-red-800 dark:to-red-900";
-    }
-  };
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 ml-0 md:ml-64">
@@ -225,17 +214,32 @@ export default function GeneratePage() {
                     />
                   ))
                 ) : (
-                  numbers.map((num, i) => (
-                    <div
-                      key={i}
-                      className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full ${getNumberColor(num)} text-white flex items-center justify-center text-base sm:text-lg md:text-xl font-semibold shadow-lg transform transition-all hover:scale-110 animate-fade-in`}
-                      style={{
-                        animationDelay: `${i * 0.1}s`,
-                      }}
-                    >
-                      {num}
-                    </div>
-                  ))
+                  numbers.map((num, i) => {
+                    const isMatched = selectedNumbers.length > 0 && selectedNumbers.includes(num);
+                    const colorClass = getNumberColor(num, selectedNumbers);
+                    
+                    // Force red gradient background for non-matched numbers using inline styles
+                    const inlineStyle: React.CSSProperties = {
+                      animationDelay: `${i * 0.1}s`,
+                    };
+                    
+                    // If we have selected numbers and this one doesn't match, force red gradient
+                    if (selectedNumbers.length > 0 && !isMatched) {
+                      // Red gradient: from red-500 to red-700 (similar gradient style as green)
+                      inlineStyle.background = 'linear-gradient(to bottom right, #ef4444, #b91c1c)';
+                      inlineStyle.border = '2px solid #b91c1c';
+                    }
+                    
+                    return (
+                      <div
+                        key={i}
+                        className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full ${colorClass} text-white flex items-center justify-center text-base sm:text-lg md:text-xl font-semibold shadow-lg transform transition-all hover:scale-110 animate-fade-in`}
+                        style={inlineStyle}
+                      >
+                        {num}
+                      </div>
+                    );
+                  })
                 )}
               </div>
               {selectedNumbers.length > 0 && numbers.length > 0 && (

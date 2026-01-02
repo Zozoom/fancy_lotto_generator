@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
-import { Generation } from "@/types/generation";
-import { formatDate } from "@/lib/utils";
+import { formatDate, generateRandomNumbers } from "@/lib/utils";
 import { useNumberSelection } from "@/hooks/useNumberSelection";
 import { useHistory } from "@/hooks/useHistory";
+import { getNumberColor } from "@/lib/numberColors";
 
 export default function LottoPage() {
   const [numbers, setNumbers] = useState<number[]>([]);
-  const [history, setHistory] = useState<Generation[]>([]);
+  const { history, loadHistory, saveGeneration } = useHistory();
   const [isGenerating, setIsGenerating] = useState(false);
   const { selectedNumbers, setSelectedNumbers, toggleNumber, clearSelection: clearNumberSelection } = useNumberSelection(5);
   const [isPredicting, setIsPredicting] = useState(false);
@@ -22,28 +22,12 @@ export default function LottoPage() {
   const paginatedHistory = history.slice(startIndex, endIndex);
 
   useEffect(() => {
-    loadHistory();
-  }, []);
-
-  useEffect(() => {
     // Reset to first page if current page is out of bounds
     const newTotalPages = Math.ceil(history.length / itemsPerPage);
     if (currentPage > newTotalPages && newTotalPages > 0) {
       setCurrentPage(1);
     }
   }, [history.length, currentPage, itemsPerPage]);
-
-  const loadHistory = async () => {
-    try {
-      const response = await fetch("/api/history");
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data);
-      }
-    } catch (error) {
-      console.error("Failed to load history:", error);
-    }
-  };
 
   const generateNumbers = () => {
     // Clear only generated numbers, keep manual inputs
@@ -90,7 +74,7 @@ export default function LottoPage() {
         method: "DELETE",
       });
       if (response.ok) {
-        setHistory([]);
+        loadHistory();
         setNumbers([]);
         clearNumberSelection();
         setCurrentPage(1);
@@ -100,21 +84,6 @@ export default function LottoPage() {
     }
   };
 
-  const getNumberColor = (num: number): string => {
-    if (selectedNumbers.length === 0) {
-      return "bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-600 dark:to-emerald-700";
-    }
-    
-    const isMatched = selectedNumbers.includes(num);
-    
-    if (isMatched) {
-      // Match: green (generated number that matches selected number)
-      return "bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-600 dark:to-emerald-700";
-    } else {
-      // Not matched: red (generated but not in selected numbers)
-      return "bg-gradient-to-br from-red-700 to-red-800 dark:from-red-800 dark:to-red-900";
-    }
-  };
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 ml-0 md:ml-64">
@@ -214,7 +183,7 @@ export default function LottoPage() {
                   numbers.map((num, i) => (
                     <div
                       key={i}
-                      className={`w-16 h-16 rounded-full ${getNumberColor(num)} text-white flex items-center justify-center text-xl font-semibold shadow-lg transform transition-all hover:scale-110 animate-fade-in`}
+                      className={`w-16 h-16 rounded-full ${getNumberColor(num, selectedNumbers)} text-white flex items-center justify-center text-xl font-semibold shadow-lg transform transition-all hover:scale-110 animate-fade-in`}
                       style={{
                         animationDelay: `${i * 0.1}s`,
                       }}

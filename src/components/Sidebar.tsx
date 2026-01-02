@@ -165,8 +165,36 @@ export default function Sidebar() {
         </Link>
       </nav>
 
-      {/* Mute Button at Bottom */}
+      {/* Info Button above Mute */}
       <div className="p-4 border-t-2 border-slate-300 dark:border-slate-600">
+        <Link
+          href="/info"
+          onClick={() => setIsMobileOpen(false)}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
+            isActive("/info")
+              ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md"
+              : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+          }`}
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span>Info</span>
+        </Link>
+      </div>
+
+      {/* Mute Button at Bottom */}
+      <div className="px-4 pb-4">
         <button
           onClick={toggleMute}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"

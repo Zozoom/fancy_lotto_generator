@@ -24,16 +24,31 @@ export function SoundProvider({ children }: { children: ReactNode }) {
     }
 
     // Preload audio files
-    winSoundRef.current = new Audio("/sounds/winner-game-sound-404167.mp3");
-    loseSoundRef.current = new Audio("/sounds/fail-trumpet-02-383962.mp3");
+    const winAudio = new Audio("/sounds/winner-game-sound-404167.mp3");
+    const loseAudio = new Audio("/sounds/fail-trumpet-02-383962.mp3");
     
-    // Set volume
-    if (winSoundRef.current) {
-      winSoundRef.current.volume = 0.7;
-    }
-    if (loseSoundRef.current) {
-      loseSoundRef.current.volume = 0.7;
-    }
+    // Set volume and preload
+    winAudio.volume = 0.7;
+    loseAudio.volume = 0.7;
+    
+    // Preload the audio
+    winAudio.preload = "auto";
+    loseAudio.preload = "auto";
+    
+    // Load the audio files
+    winAudio.load();
+    loseAudio.load();
+    
+    winSoundRef.current = winAudio;
+    loseSoundRef.current = loseAudio;
+    
+    // Cleanup on unmount
+    return () => {
+      winAudio.pause();
+      winAudio.src = "";
+      loseAudio.pause();
+      loseAudio.src = "";
+    };
   }, []);
 
   const toggleMute = () => {
@@ -43,24 +58,67 @@ export function SoundProvider({ children }: { children: ReactNode }) {
   };
 
   const playWinSound = useCallback(() => {
-    if (isMuted || !winSoundRef.current) return;
+    if (isMuted || !winSoundRef.current) {
+      console.log("Win sound skipped - muted:", isMuted, "ref exists:", !!winSoundRef.current);
+      return;
+    }
     try {
-      winSoundRef.current.currentTime = 0; // Reset to start
-      winSoundRef.current.play().catch((e) => {
-        console.error("Error playing win sound:", e);
-      });
+      const audio = winSoundRef.current;
+      audio.currentTime = 0; // Reset to start
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log("Win sound playing");
+          })
+          .catch((e) => {
+            console.error("Error playing win sound:", e);
+            // Try to reload and play again
+            audio.load();
+            audio.play().catch((err) => console.error("Retry failed:", err));
+          });
+      }
     } catch (e) {
       console.error("Error playing win sound:", e);
     }
   }, [isMuted]);
 
   const playLoseSound = useCallback(() => {
-    if (isMuted || !loseSoundRef.current) return;
+    if (isMuted) {
+      console.log("Lose sound skipped - muted:", isMuted);
+      return;
+    }
+    
+    // Create new audio instance if ref is null or not ready
+    let audio = loseSoundRef.current;
+    if (!audio || audio.readyState === 0) {
+      audio = new Audio("/sounds/fail-trumpet-02-383962.mp3");
+      audio.volume = 0.7;
+      audio.preload = "auto";
+      loseSoundRef.current = audio;
+    }
+    
     try {
-      loseSoundRef.current.currentTime = 0; // Reset to start
-      loseSoundRef.current.play().catch((e) => {
-        console.error("Error playing lose sound:", e);
-      });
+      audio.currentTime = 0; // Reset to start
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log("Lose sound playing successfully");
+          })
+          .catch((e) => {
+            console.error("Error playing lose sound:", e);
+            // Try to reload and play again
+            audio.load();
+            audio.play().catch((err) => {
+              console.error("Retry failed:", err);
+              // Last resort: create a completely new audio element
+              const newAudio = new Audio("/sounds/fail-trumpet-02-383962.mp3");
+              newAudio.volume = 0.7;
+              newAudio.play().catch((finalErr) => console.error("Final attempt failed:", finalErr));
+            });
+          });
+      }
     } catch (e) {
       console.error("Error playing lose sound:", e);
     }

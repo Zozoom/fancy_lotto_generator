@@ -1,8 +1,9 @@
 {
-  "name": "lottery-generator",
+  "name": "intelligent-lottery-predictor",
   "version": "1.0.0",
-  "description": "Random lottery number generator with history",
+  "description": "AI-powered lottery number generator with advanced prediction algorithms, history tracking, and automatic synchronization with official lottery results",
   "private": true,
+  "packageManager": "bun@latest",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
