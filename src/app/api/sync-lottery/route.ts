@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { readGenerations, writeGenerations } from "@/lib/generations";
 import { Generation } from "@/types/generation";
 import { convertDateToISO } from "@/lib/utils";
+import { calculateManipulationScore } from "@/lib/manipulationDetection";
+import { logger } from "@/lib/logger";
 
 interface LotteryDraw {
   date: string;
@@ -143,8 +145,8 @@ export async function GET(request: NextRequest) {
     const tableRowPattern = /<tr[^>]*>[\s\S]*?<\/tr>/gi;
     const tableRows = html.match(tableRowPattern) || [];
     
-    console.log(`[SYNC] Found ${tableRows.length} table rows to parse`);
-    console.log(`[SYNC] Cutoff date: ${cutoffDate.toISOString().split('T')[0]} (${days} days ago)`);
+    logger.info(`[SYNC] Found ${tableRows.length} table rows to parse`);
+    logger.info(`[SYNC] Cutoff date: ${cutoffDate.toISOString().split('T')[0]} (${days} days ago)`);
     
     // Extract draws from table rows
     const allDraws: LotteryDraw[] = [];
@@ -154,7 +156,7 @@ export async function GET(request: NextRequest) {
       
       // Skip header row if it exists
       if (row.includes('<th') || row.includes('Év') || row.includes('Hét') || row.includes('Húzásdátum') || row.includes('Számok')) {
-        console.log(`[SYNC] Skipping header row ${i}`);
+        logger.debug(`[SYNC] Skipping header row ${i}`);
         continue;
       }
       
@@ -247,19 +249,19 @@ export async function GET(request: NextRequest) {
                 date: rowDate,
                 numbers: rowNumbers,
               });
-              console.log(`[SYNC] Extracted draw ${i}: ${rowDate} - Numbers: ${rowNumbers.join(', ')}`);
+              logger.debug(`[SYNC] Extracted draw ${i}: ${rowDate} - Numbers: ${rowNumbers.join(', ')}`);
             } else {
-              console.log(`[SYNC] Skipped duplicate date: ${rowDate}`);
+              logger.debug(`[SYNC] Skipped duplicate date: ${rowDate}`);
             }
           } else {
-            console.log(`[SYNC] Skipped draw ${i}: ${rowDate} (before cutoff date ${cutoffDate.toISOString().split('T')[0]})`);
+            logger.debug(`[SYNC] Skipped draw ${i}: ${rowDate} (before cutoff date ${cutoffDate.toISOString().split('T')[0]})`);
           }
         } catch (error) {
-          console.log(`[SYNC] Error parsing date for row ${i}: ${rowDate}`, error);
+          logger.warn(`[SYNC] Error parsing date for row ${i}: ${rowDate} - ${error instanceof Error ? error.message : String(error)}`);
         }
       } else {
         if (rowDate) {
-          console.log(`[SYNC] Row ${i} has date ${rowDate} but invalid numbers count: ${rowNumbers.length}`);
+          logger.debug(`[SYNC] Row ${i} has date ${rowDate} but invalid numbers count: ${rowNumbers.length}`);
         }
       }
     }
@@ -275,7 +277,7 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    console.log(`[SYNC] Extracted ${allDraws.length} total draws from page (within ${days} days)`);
+    logger.info(`[SYNC] Extracted ${allDraws.length} total draws from page (within ${days} days)`);
     
     if (allDraws.length === 0) {
       return NextResponse.json(
@@ -290,12 +292,12 @@ export async function GET(request: NextRequest) {
     let savedCount = 0;
     let skippedCount = 0;
 
-    console.log(`[SYNC] Starting to save draws. Current history has ${initialCount} records`);
+    logger.info(`[SYNC] Starting to save draws. Current history has ${initialCount} records`);
 
     for (const draw of allDraws) {
       // Only save if we have valid numbers
       if (draw.numbers.length !== 5) {
-        console.log(`[SYNC] Skipping draw with date ${draw.date} - invalid numbers count`);
+        logger.warn(`[SYNC] Skipping draw with date ${draw.date} - invalid numbers count`);
         continue;
       }
 
@@ -317,12 +319,21 @@ export async function GET(request: NextRequest) {
           date: isoDate,
           // Explicitly no predictedNumbers for synced data
         };
+        
+        // Calculate manipulation score based on existing generations + already synced ones
+        const manipulationResult = calculateManipulationScore(newGeneration, generations);
+        newGeneration.manipulationScore = {
+          score: manipulationResult.score,
+          confidence: manipulationResult.confidence,
+          patterns: manipulationResult.patterns,
+        };
+        
         generations.unshift(newGeneration);
         savedCount++;
-        console.log(`[SYNC] Saved draw: ${draw.date} - Numbers: ${draw.numbers.join(', ')}`);
+        logger.info(`[SYNC] Saved draw: ${draw.date} - Numbers: ${draw.numbers.join(', ')} - Manipulation Score: ${newGeneration.manipulationScore.score}%`);
       } else {
         skippedCount++;
-        console.log(`[SYNC] Skipped duplicate: ${draw.date} - Numbers: ${draw.numbers.join(', ')}`);
+        logger.debug(`[SYNC] Skipped duplicate: ${draw.date} - Numbers: ${draw.numbers.join(', ')}`);
       }
     }
 
@@ -330,7 +341,7 @@ export async function GET(request: NextRequest) {
     await writeGenerations(generations);
     
     const finalCount = generations.length;
-    console.log(`[SYNC] Completed. Saved ${savedCount} new records, skipped ${skippedCount} duplicates. Total records: ${finalCount} (was ${initialCount})`);
+    logger.info(`[SYNC] Completed. Saved ${savedCount} new records, skipped ${skippedCount} duplicates. Total records: ${finalCount} (was ${initialCount})`);
 
     return NextResponse.json({
       success: true,
@@ -342,7 +353,7 @@ export async function GET(request: NextRequest) {
       previousRecords: initialCount,
     });
   } catch (error) {
-    console.error("Error syncing lottery data:", error);
+    logger.error(`[SYNC] Error syncing lottery data: ${error instanceof Error ? error.message : String(error)}`);
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : "Failed to sync lottery data",

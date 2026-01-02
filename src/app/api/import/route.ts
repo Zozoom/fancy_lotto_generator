@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeGenerations } from "@/lib/generations";
+import { readGenerations, writeGenerations } from "@/lib/generations";
 import { Generation } from "@/types/generation";
+import { calculateManipulationScore } from "@/lib/manipulationDetection";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,16 +63,44 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Read existing generations to calculate manipulation scores
+    const existingGenerations = await readGenerations();
+    
+    // Calculate manipulation scores for imported generations
+    // We'll calculate scores based on existing + already processed imports
+    const allGenerationsForScoring = [...existingGenerations];
+    const importedGenerations: Generation[] = [];
+    
+    for (let i = 0; i < body.length; i++) {
+      const gen = body[i] as Generation;
+      
+      // Calculate manipulation score using existing + previously imported generations
+      const manipulationResult = calculateManipulationScore(gen, allGenerationsForScoring);
+      gen.manipulationScore = {
+        score: manipulationResult.score,
+        confidence: manipulationResult.confidence,
+        patterns: manipulationResult.patterns,
+      };
+      
+      importedGenerations.push(gen);
+      // Add to scoring context for next iterations
+      allGenerationsForScoring.push(gen);
+    }
+    
+    // Merge with existing generations (new imports go to the front)
+    const allGenerations = [...importedGenerations, ...existingGenerations];
+    
     // No record limit - import all records
-    await writeGenerations(body);
+    await writeGenerations(allGenerations);
 
+    logger.info(`[IMPORT] Successfully imported ${importedGenerations.length} generations. Total: ${allGenerations.length}`);
     return NextResponse.json({
       success: true,
-      imported: body.length,
-      total: body.length,
+      imported: importedGenerations.length,
+      total: allGenerations.length,
     });
   } catch (error) {
-    console.error("Error importing generations:", error);
+    logger.error(`[IMPORT] Error importing generations: ${error instanceof Error ? error.message : String(error)}`);
     return NextResponse.json(
       { error: "Failed to import history" },
       { status: 500 }

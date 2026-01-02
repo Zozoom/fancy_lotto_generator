@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readGenerations } from "@/lib/generations";
 import { predictNumbers } from "@/lib/prediction";
+import { logger } from "@/lib/logger";
 
 export async function GET() {
   try {
@@ -8,7 +9,7 @@ export async function GET() {
     const predictedNumbers = predictNumbers(generations);
     return NextResponse.json({ numbers: predictedNumbers });
   } catch (error) {
-    console.error("Error predicting numbers:", error);
+    logger.error(`[PREDICT] Error predicting numbers: ${error instanceof Error ? error.message : String(error)}`);
     return NextResponse.json(
       { error: "Failed to predict numbers" },
       { status: 500 }

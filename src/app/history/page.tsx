@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Generation } from "@/types/generation";
 import { formatDate } from "@/lib/utils";
 import { useHistory } from "@/hooks/useHistory";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function HistoryPage() {
   const { history, isLoading, loadHistory, setHistory } = useHistory();
@@ -11,6 +12,14 @@ export default function HistoryPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: "deleteSelected" | "deleteAll" | "deleteSingle" | null;
+    data?: { count?: number; id?: string };
+  }>({
+    isOpen: false,
+    type: null,
+  });
   
   const itemsPerPage = 25;
   const totalPages = Math.ceil(history.length / itemsPerPage);
@@ -73,11 +82,19 @@ export default function HistoryPage() {
     if (selectedIds.size === 0) return;
     
     const count = selectedIds.size;
-    if (!confirm(`Are you sure you want to delete ${count} record${count !== 1 ? 's' : ''}? This action cannot be undone.`)) {
-      return;
-    }
+    setModalState({
+      isOpen: true,
+      type: "deleteSelected",
+      data: { count },
+    });
+  };
+
+  const confirmDeleteSelected = async () => {
+    if (!modalState.data?.count) return;
     
     setIsDeleting(true);
+    setModalState({ isOpen: false, type: null });
+    
     try {
       const idsArray = Array.from(selectedIds);
       const response = await fetch(`/api/delete?ids=${idsArray.join(",")}`, {
@@ -88,29 +105,38 @@ export default function HistoryPage() {
         setSelectedIds(new Set());
         await loadHistory();
         // Reset to page 1 if current page becomes empty
-        const newTotalPages = Math.ceil((history.length - count) / itemsPerPage);
+        const newTotalPages = Math.ceil((history.length - modalState.data.count) / itemsPerPage);
         if (currentPage > newTotalPages && newTotalPages > 0) {
           setCurrentPage(1);
         }
       } else {
-        alert("Failed to delete records");
+        setModalState({
+          isOpen: true,
+          type: "deleteSelected",
+          data: { count: modalState.data.count },
+        });
       }
     } catch (error) {
       console.error("Failed to delete records:", error);
-      alert("Failed to delete records");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const deleteAll = async () => {
+  const deleteAll = () => {
     if (history.length === 0) return;
     
-    if (!confirm(`Are you sure you want to delete ALL ${history.length} records? This action cannot be undone.`)) {
-      return;
-    }
-    
+    setModalState({
+      isOpen: true,
+      type: "deleteAll",
+      data: { count: history.length },
+    });
+  };
+
+  const confirmDeleteAll = async () => {
     setIsDeleting(true);
+    setModalState({ isOpen: false, type: null });
+    
     try {
       const response = await fetch("/api/clear", {
         method: "DELETE",
@@ -120,23 +146,29 @@ export default function HistoryPage() {
         setSelectedIds(new Set());
         setHistory([]);
         setCurrentPage(1);
-      } else {
-        alert("Failed to delete all records");
       }
     } catch (error) {
       console.error("Failed to delete all records:", error);
-      alert("Failed to delete all records");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const deleteSingle = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this record? This action cannot be undone.")) {
-      return;
-    }
+  const deleteSingle = (id: string) => {
+    setModalState({
+      isOpen: true,
+      type: "deleteSingle",
+      data: { id },
+    });
+  };
+
+  const confirmDeleteSingle = async () => {
+    if (!modalState.data?.id) return;
     
+    const id = modalState.data.id;
     setIsDeleting(true);
+    setModalState({ isOpen: false, type: null });
+    
     try {
       const response = await fetch(`/api/delete?ids=${id}`, {
         method: "DELETE",
@@ -154,12 +186,9 @@ export default function HistoryPage() {
         if (currentPage > newTotalPages && newTotalPages > 0) {
           setCurrentPage(1);
         }
-      } else {
-        alert("Failed to delete record");
       }
     } catch (error) {
       console.error("Failed to delete record:", error);
-      alert("Failed to delete record");
     } finally {
       setIsDeleting(false);
     }
@@ -383,6 +412,43 @@ export default function HistoryPage() {
                             })}
                           </div>
                           <div className="flex items-center gap-3">
+                            {/* Manipulation Score Display */}
+                            {gen.manipulationScore && (
+                              <div className="flex flex-col items-end gap-1">
+                                <div className="flex items-center gap-2 group relative">
+                                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                                    Manipulation:
+                                  </span>
+                                  <div
+                                    className={`px-2 py-1 rounded text-xs font-semibold cursor-help ${
+                                      gen.manipulationScore.score >= 70
+                                        ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+                                        : gen.manipulationScore.score >= 40
+                                        ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+                                        : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                                    }`}
+                                  >
+                                    {gen.manipulationScore.score}%
+                                  </div>
+                                  {gen.manipulationScore.patterns.length > 0 && (
+                                    <div className="absolute right-0 top-full mt-2 w-72 p-3 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none z-20 transition-opacity duration-200">
+                                      <div className="font-semibold mb-2 text-yellow-400">Detected Patterns:</div>
+                                      <ul className="list-disc list-inside space-y-1 mb-2">
+                                        {gen.manipulationScore.patterns.map((pattern, idx) => (
+                                          <li key={idx} className="text-slate-200">{pattern}</li>
+                                        ))}
+                                      </ul>
+                                      <div className="pt-2 border-t border-slate-600 text-slate-300">
+                                        <div>Confidence: <span className="font-semibold">{gen.manipulationScore.confidence}%</span></div>
+                                        <div className="text-xs mt-1 text-slate-400">
+                                          Higher score = more likely manipulated
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                             <span className="text-xs text-slate-500 dark:text-slate-400">
                               {formatDate(gen.date)}
                             </span>
@@ -461,6 +527,38 @@ export default function HistoryPage() {
           )}
         </div>
       </div>
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={modalState.isOpen}
+        title={
+          modalState.type === "deleteAll"
+            ? "Delete All Records"
+            : modalState.type === "deleteSelected"
+            ? "Delete Selected Records"
+            : "Delete Record"
+        }
+        message={
+          modalState.type === "deleteAll"
+            ? `Are you sure you want to delete ALL ${modalState.data?.count || 0} records? This action cannot be undone.`
+            : modalState.type === "deleteSelected"
+            ? `Are you sure you want to delete ${modalState.data?.count || 0} record${(modalState.data?.count || 0) !== 1 ? 's' : ''}? This action cannot be undone.`
+            : "Are you sure you want to delete this record? This action cannot be undone."
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={() => {
+          if (modalState.type === "deleteAll") {
+            confirmDeleteAll();
+          } else if (modalState.type === "deleteSelected") {
+            confirmDeleteSelected();
+          } else if (modalState.type === "deleteSingle") {
+            confirmDeleteSingle();
+          }
+        }}
+        onCancel={() => setModalState({ isOpen: false, type: null })}
+      />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { formatDate, generateRandomNumbers } from "@/lib/utils";
 import { useNumberSelection } from "@/hooks/useNumberSelection";
 import { useHistory } from "@/hooks/useHistory";
 import { getNumberColor } from "@/lib/numberColors";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function LottoPage() {
   const [numbers, setNumbers] = useState<number[]>([]);
@@ -14,6 +15,7 @@ export default function LottoPage() {
   const { selectedNumbers, setSelectedNumbers, toggleNumber, clearSelection: clearNumberSelection } = useNumberSelection(5);
   const [isPredicting, setIsPredicting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showClearModal, setShowClearModal] = useState(false);
   
   const itemsPerPage = 25;
   const totalPages = Math.ceil(history.length / itemsPerPage);
@@ -65,10 +67,11 @@ export default function LottoPage() {
   };
 
   const clearDatabase = async () => {
-    if (!confirm("Are you sure you want to clear all history? This action cannot be undone.")) {
-      return;
-    }
-    
+    setShowClearModal(true);
+  };
+
+  const confirmClearDatabase = async () => {
+    setShowClearModal(false);
     try {
       const response = await fetch("/api/clear", {
         method: "DELETE",
@@ -344,6 +347,18 @@ export default function LottoPage() {
             )}
           </div>
         </div>
+
+        {/* Confirm Clear Database Modal */}
+        <ConfirmModal
+          isOpen={showClearModal}
+          title="Clear All History"
+          message={`Are you sure you want to clear all ${history.length} records? This action cannot be undone.`}
+          confirmText="Clear All"
+          cancelText="Cancel"
+          type="danger"
+          onConfirm={confirmClearDatabase}
+          onCancel={() => setShowClearModal(false)}
+        />
     </div>
   );
 }
