@@ -1,0 +1,2 @@
+# fancy_lotto_generator
+fancy_lotto_generator
