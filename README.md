@@ -351,6 +351,15 @@ Detects human manipulation patterns through statistical tests (Runs Test, Chi-Sq
 
 Tracks user behavior (favorite ranges/numbers, digit endings, compensation patterns) and adapts predictions accordingly. Avoids similar predictions to recent ones, balances statistical patterns with behavioral insights, and optimizes for diversity and distribution.
 
+## 🙏 Credits
+
+### Sound Effects
+
+Sound effects are provided by Pixabay:
+
+- Winner sound: [Winner Game Sound](https://pixabay.com/sound-effects/winner-game-sound-404167/)
+- Fail sound: [Fail Trumpet 02](https://pixabay.com/sound-effects/fail-trumpet-02-383962/)
+
 ## 📄 License
 
 This project is private and proprietary. See [LICENSE.md](./LICENSE.md) for details on permitted educational use and prohibited commercial/monetization activities.
