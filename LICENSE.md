@@ -33,6 +33,5 @@ This project is an experimental educational tool. The authors and contributors a
 
 ## Copyright
 
-Copyright (c) 2025. All rights reserved.
-
-This project is private and proprietary. Unauthorized use, reproduction, or distribution is strictly prohibited.
+Zoltan Kiss (c) 2025. All rights reserved.
+Unauthorized use, reproduction, or distribution is strictly prohibited.
