@@ -2,6 +2,8 @@
 
 An advanced, AI-powered lottery number generator and prediction system built with Next.js, React, and TypeScript. Features sophisticated prediction algorithms, comprehensive history tracking, manipulation detection, behavioral pattern analysis, and automatic synchronization with official lottery results.
 
+> **Note**: This is an experimental project focusing on mathematical prediction algorithms. It is important to understand that predicting truly random lottery numbers is mathematically impossible. However, this application explores whether patterns can emerge when human manipulation occurs in number selection. The manipulation detection and behavioral analysis systems are designed to identify and analyze human selection patterns, not to predict actual lottery outcomes.
+
 ## 📸 Screenshots
 
 ![Lottery Generator Demo](./public/images/010311-ezgif.com-video-to-gif-converter.gif)
@@ -69,13 +71,11 @@ An advanced, AI-powered lottery number generator and prediction system built wit
 ### 🎨 User Experience
 
 - **Modern UI**: Beautiful, responsive design with dark mode support
-- **Confetti Celebrations**: Visual feedback when numbers match
-- **Sound Effects**: Celebratory sounds for wins, with mute functionality
+- **Confetti & Sound Effects**: Visual and audio feedback for matches
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
 - **Fixed Sidebar Navigation**: Easy access to all features
-- **Custom Modals**: Elegant confirmation dialogs with light overlay
-- **Loading States**: Clear visual feedback during operations
-- **Empty States**: Helpful messages when no data is available
+- **Custom Modals**: Elegant confirmation dialogs (no browser alerts)
+- **Loading & Empty States**: Clear visual feedback during operations
 
 ### ⚙️ Settings & Configuration
 
@@ -88,7 +88,6 @@ An advanced, AI-powered lottery number generator and prediction system built wit
 ### Prerequisites
 
 - [Bun](https://bun.sh/) (latest version)
-- Node.js 18+ (if not using Bun's built-in Node.js)
 
 ### Installation
 
@@ -180,10 +179,10 @@ lottery-generator/
 
 ## 🛠️ Technology Stack
 
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
-- **UI Library**: [React 18](https://react.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **UI Library**: [React 19](https://react.dev/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Language**: [TypeScript 5.9](https://www.typescriptlang.org/)
 - **Package Manager**: [Bun](https://bun.sh/)
 - **Effects**: [canvas-confetti](https://github.com/catdad/canvas-confetti)
 
@@ -202,40 +201,22 @@ lottery-generator/
 ### Viewing History
 
 1. Go to the **History** page
-2. Browse through all past generations
-3. See matched numbers highlighted
-4. View manipulation scores for each generation:
-   - **Green (0-39%)**: Likely random
-   - **Yellow (40-69%)**: Some patterns detected
-   - **Red (70-100%)**: Strong manipulation indicators
-5. Hover over scores to see detected patterns
-6. Delete individual or multiple records using custom modals
+2. Browse past generations with matched numbers highlighted
+3. View manipulation scores (color-coded: Green 0-39%, Yellow 40-69%, Red 70-100%)
+4. Hover over scores to see detected patterns
+5. Delete individual or multiple records using custom modals
 
 ### Analyzing Data
 
 1. Navigate to the **Analyze** page
-2. View comprehensive statistics:
-   - Hot and cold numbers
-   - Recent trends
-   - Most common pairs
-   - Range and distribution charts
-   - Sum statistics
-   - Odd/even patterns
+2. View comprehensive statistics: hot/cold numbers, recent trends, common pairs, range distribution charts, sum statistics, and odd/even patterns
 3. Use insights to inform your number selection
 
-### Syncing Lottery Results
+### Data Management
 
 1. Open **Settings**
-2. Configure the sync URL (default: official lottery source)
-3. Select the time range (1 week to 51 years)
-4. Click **Sync Lottery Results**
-5. View sync log and statistics
-
-### Exporting/Importing Data
-
-1. In **Settings**, scroll to **Export & Import**
-2. **Export**: Download your history as JSON
-3. **Import**: Upload a JSON file to restore history
+2. **Sync Lottery Results**: Configure sync URL and time range (1 week to 51 years)
+3. **Export/Import**: Download history as JSON or upload to restore data
 
 ## 🧠 Prediction Algorithms
 
@@ -294,11 +275,7 @@ See [PREDICTION.md](./PREDICTION.md) for detailed algorithm documentation.
 
 ## 🎨 Design Philosophy
 
-- **Green/Emerald Theme**: Calming, professional color scheme
-- **Gradient Backgrounds**: Subtle gradients for visual depth
-- **Strong Borders**: Clear visual separation
-- **Responsive**: Mobile-first design approach
-- **Accessibility**: Proper contrast and semantic HTML
+Green/emerald theme with gradient backgrounds, strong borders, mobile-first responsive design, and accessibility-focused contrast and semantic HTML.
 
 ## 📝 API Endpoints
 
@@ -346,21 +323,7 @@ bun run lint
 
 ### Code Structure
 
-The codebase follows best practices:
-
-- **Modular**: Separated concerns with utilities, hooks, and components
-- **Type-Safe**: Full TypeScript coverage
-- **DRY**: Shared utilities and hooks reduce duplication
-- **Maintainable**: Clear file structure and naming conventions
-- **Logged**: Comprehensive logging system for debugging and monitoring
-
-### Logging
-
-- Logs are written to both server console and log files
-- Log files are created automatically in `logs/` directory
-- Daily rotation: `app-YYYY-MM-DD.log`
-- Log levels: INFO, DEBUG, WARN, ERROR
-- All prediction and detection operations are logged
+Modular architecture with separated concerns, full TypeScript coverage, shared utilities/hooks, and comprehensive logging system. Logs are written to both console and daily rotated files (`logs/app-YYYY-MM-DD.log`) with INFO, DEBUG, WARN, ERROR levels.
 
 ### Key Features Implementation
 
@@ -382,28 +345,11 @@ The codebase follows best practices:
 
 ### Manipulation Detection System
 
-The application detects human manipulation patterns in number selection:
+Detects human manipulation patterns through statistical tests (Runs Test, Chi-Square, Serial Correlation), behavioral patterns (consecutive avoidance, spread preference, middle-range preference), visual patterns (odd/even balance, round numbers), and confidence scoring (0-100%).
 
-- **Statistical Tests**: Runs Test, Chi-Square, Serial Correlation
-- **Behavioral Patterns**: Consecutive avoidance, spread preference, middle-range preference
-- **Visual Patterns**: Odd/even balance, round numbers, repeated digits
-- **Confidence Scoring**: 0-100% manipulation likelihood with pattern details
+### User Profile Building & Prediction Adaptation
 
-### User Profile Building
-
-Tracks and learns from user behavior:
-
-- Favorite number ranges and individual numbers
-- Digit ending preferences
-- Compensation patterns (high after low, etc.)
-- Randomness strategy (avoids consecutive, prefers spread, etc.)
-
-### Prediction Adaptation
-
-- Adapts predictions based on detected manipulation patterns
-- Avoids similar predictions to recent ones
-- Balances statistical patterns with behavioral insights
-- Optimizes for diversity and distribution
+Tracks user behavior (favorite ranges/numbers, digit endings, compensation patterns) and adapts predictions accordingly. Avoids similar predictions to recent ones, balances statistical patterns with behavioral insights, and optimizes for diversity and distribution.
 
 ## 📄 License
 
@@ -412,7 +358,3 @@ This project is private and proprietary.
 ## 👤 Author
 
 Built with ❤️ for intelligent lottery number prediction
-
----
-
-**Note**: This application is for entertainment purposes only. Lottery outcomes are random, and no prediction system can guarantee wins. The manipulation detection and behavioral analysis are designed to understand user patterns, not to predict actual lottery outcomes.
