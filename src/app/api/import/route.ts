@@ -37,9 +37,9 @@ export async function POST(request: NextRequest) {
       }
       // Validate numbers are actually numbers
       for (const num of gen.numbers) {
-        if (typeof num !== "number" || num < 1 || num > 99) {
+        if (typeof num !== "number" || num < 1 || num > 90) {
           return NextResponse.json(
-            { error: "Invalid format: Numbers must be between 1 and 99" },
+            { error: "Invalid format: Numbers must be between 1 and 90" },
             { status: 400 }
           );
         }
@@ -53,9 +53,9 @@ export async function POST(request: NextRequest) {
           );
         }
         for (const num of gen.predictedNumbers) {
-          if (typeof num !== "number" || num < 1 || num > 99) {
+          if (typeof num !== "number" || num < 1 || num > 90) {
             return NextResponse.json(
-              { error: "Invalid format: Predicted numbers must be between 1 and 99" },
+              { error: "Invalid format: Predicted numbers must be between 1 and 90" },
               { status: 400 }
             );
           }

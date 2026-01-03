@@ -43,7 +43,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
               Random Generation
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-              Generate 5 unique random numbers from 1 to 99 instantly
+              Generate 5 unique random numbers from 1 to 90 instantly
             </p>
           </div>
 

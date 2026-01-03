@@ -32,7 +32,7 @@ export default function GeneratePage() {
     const params = new URLSearchParams(window.location.search);
     const numbersParam = params.get("numbers");
     if (numbersParam) {
-      const nums = numbersParam.split(",").map(Number).filter(n => !isNaN(n) && n >= 1 && n <= 99);
+      const nums = numbersParam.split(",").map(Number).filter(n => !isNaN(n) && n >= 1 && n <= 90);
       if (nums.length === 5) {
         setSelectedNumbers(nums);
       }

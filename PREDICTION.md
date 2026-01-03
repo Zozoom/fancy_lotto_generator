@@ -55,7 +55,7 @@ This is the primary prediction algorithm that analyzes historical data using mul
 
 - **Purpose**: Balance number distribution
 - **Method**:
-  - Compares actual frequency vs expected uniform distribution (1/99 per number)
+  - Compares actual frequency vs expected uniform distribution (1/90 per number)
   - Boosts under-represented numbers (< 70% of expected frequency)
   - Slight penalty for over-represented numbers (> 150% of expected frequency)
 
@@ -79,7 +79,7 @@ This is the primary prediction algorithm that analyzes historical data using mul
 
 - **Purpose**: Ensure balanced distribution across number ranges
 - **Method**:
-  - Divides numbers into 5 ranges: 1-20, 21-40, 41-60, 61-80, 81-99
+  - Divides numbers into 5 ranges: 1-20, 21-40, 41-60, 61-80, 81-90
   - Analyzes last 15 generations
   - Boosts under-represented ranges (< 60% of average)
 
@@ -126,7 +126,7 @@ This is the primary prediction algorithm that analyzes historical data using mul
 - **Purpose**: Ensure valid, diverse prediction
 - **Method**:
   - Filters out candidates too similar to recent predictions (> 60% similarity)
-  - Validates all numbers are between 1-99
+  - Validates all numbers are between 1-90
   - Ensures no duplicates
   - Falls back to random if validation fails
 
@@ -235,7 +235,7 @@ Detects non-random patterns that suggest human manipulation of number selection.
 
 - **Purpose**: Check if number distribution deviates significantly from uniform
 - **Method**:
-  - Calculates observed frequency for each number (1-99)
+  - Calculates observed frequency for each number (1-90)
   - Compares to expected uniform frequency
   - Calculates chi-square statistic: `Σ((observed - expected)² / expected)`
   - Normalizes to 0-100 scale
@@ -247,7 +247,7 @@ Detects non-random patterns that suggest human manipulation of number selection.
 - **Method**:
   - Compares each generation to previous one
   - Calculates overlap (how many numbers match)
-  - Expected similarity: ~5% (5/99 chance per number)
+  - Expected similarity: ~5.56% (5/90 chance per number)
   - Measures deviation from expected
 - **Score**: 0-100, higher = more pattern detected
 
@@ -276,7 +276,7 @@ Detects non-random patterns that suggest human manipulation of number selection.
 
 - **Detects**: Preference for middle-range numbers (avoiding extremes)
 - **Method**:
-  - Counts numbers in ranges: 1-20 (low), 80-99 (high), 30-70 (middle)
+  - Counts numbers in ranges: 1-20 (low), 80-90 (high), 30-70 (middle)
   - Expected: ~1 in each extreme, ~2-3 in middle
   - If extremes < 0.5 each AND middle > 3, suggests preference
 - **Score**: 0-100
@@ -334,7 +334,7 @@ Builds a comprehensive profile of user's selection behavior over time.
 
 #### 1. Favorite Ranges
 
-- Tracks frequency of numbers in each range: 1-20, 21-40, 41-60, 61-80, 81-99
+- Tracks frequency of numbers in each range: 1-20, 21-40, 41-60, 61-80, 81-90
 - Normalized to percentages
 
 #### 2. Favorite Numbers
@@ -384,7 +384,7 @@ When manipulation is detected (score > 20%), the prediction algorithm:
    - History-based: Uses all phases (1-9)
    - Analytics-based: Uses statistical patterns
 5. **Avoid similar predictions** by checking against recent predictions
-6. **Validate and return** 5 unique numbers between 1-99
+6. **Validate and return** 5 unique numbers between 1-90
 
 ### Detection Flow
 

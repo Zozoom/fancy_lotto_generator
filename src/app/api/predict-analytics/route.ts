@@ -18,13 +18,13 @@ async function calculateAnalytics() {
     "21-40": 0,
     "41-60": 0,
     "61-80": 0,
-    "81-99": 0,
+    "81-90": 0,
   };
   const oddEvenCounts = { odd: 0, even: 0 };
   const digitEndingCounts: { [key: number]: number } = {};
   const sumCounts: number[] = [];
 
-  for (let i = 1; i <= 99; i++) {
+  for (let i = 1; i <= 90; i++) {
     numberFrequency[i] = 0;
   }
   for (let i = 0; i <= 9; i++) {
@@ -39,7 +39,7 @@ async function calculateAnalytics() {
       else if (num >= 21 && num <= 40) rangeCounts["21-40"]++;
       else if (num >= 41 && num <= 60) rangeCounts["41-60"]++;
       else if (num >= 61 && num <= 80) rangeCounts["61-80"]++;
-      else if (num >= 81 && num <= 99) rangeCounts["81-99"]++;
+      else if (num >= 81 && num <= 90) rangeCounts["81-90"]++;
 
       if (num % 2 === 0) oddEvenCounts.even++;
       else oddEvenCounts.odd++;

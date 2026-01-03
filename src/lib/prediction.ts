@@ -48,7 +48,7 @@ export function predictNumbers(generations: Generation[]): number[] {
   const sumDistribution: number[] = [];
 
   // Initialize all numbers
-  for (let i = 1; i <= 99; i++) {
+  for (let i = 1; i <= 90; i++) {
     numberScores[i] = 0;
     appearanceCount[i] = 0;
   }
@@ -104,7 +104,7 @@ export function predictNumbers(generations: Generation[]): number[] {
     const num = parseInt(numStr);
     const lastSeen = lastAppearance[num] || 0;
     const gap = now - lastSeen;
-    const expectedReturn = avgInterval * (99 / 5); // Expected cycles for number to return
+    const expectedReturn = avgInterval * (90 / 5); // Expected cycles for number to return
 
     // Boost numbers that are overdue (gap > expected return)
     if (gap > expectedReturn * 1.2) {
@@ -116,7 +116,7 @@ export function predictNumbers(generations: Generation[]): number[] {
   // Phase 3: Frequency Normalization & Under-representation Boost
   logger.debug(`[PREDICTION] Phase 3: Normalizing frequencies...`);
   const totalAppearances = generations.length * 5;
-  const expectedFrequency = 1 / 99;
+  const expectedFrequency = 1 / 90;
 
   Object.keys(numberScores).forEach((numStr) => {
     const num = parseInt(numStr);
@@ -175,7 +175,7 @@ export function predictNumbers(generations: Generation[]): number[] {
     { min: 21, max: 40, weight: 1 },
     { min: 41, max: 60, weight: 1 },
     { min: 61, max: 80, weight: 1 },
-    { min: 81, max: 99, weight: 1 },
+    { min: 81, max: 90, weight: 1 },
   ];
 
   const recentGens = generations.slice(0, Math.min(15, generations.length));
@@ -239,7 +239,7 @@ export function predictNumbers(generations: Generation[]): number[] {
     Object.keys(userProfile.digitEndingPreferences).forEach((endingStr) => {
       const ending = parseInt(endingStr);
       const preference = userProfile.digitEndingPreferences[ending];
-      for (let num = ending; num <= 99; num += 10) {
+      for (let num = ending; num <= 90; num += 10) {
         numberScores[num] += preference * 3 * behavioralWeight;
       }
     });
@@ -389,7 +389,7 @@ export function predictNumbers(generations: Generation[]): number[] {
       if (
         selected &&
         selected.num >= 1 &&
-        selected.num <= 99 &&
+        selected.num <= 90 &&
         !candidate.includes(selected.num)
       ) {
         candidate.push(selected.num);
@@ -570,13 +570,13 @@ export function predictNumbers(generations: Generation[]): number[] {
     result = sortedNumbers
       .slice(0, 5)
       .map((n) => n.num)
-      .filter((num) => num >= 1 && num <= 99)
+      .filter((num) => num >= 1 && num <= 90)
       .sort((a, b) => a - b);
   }
 
   // Validate result - ensure we have exactly 5 valid numbers
   const validResult = result.filter(
-    (num) => num >= 1 && num <= 99 && !isNaN(num)
+    (num) => num >= 1 && num <= 90 && !isNaN(num)
   );
   if (validResult.length !== 5) {
     logger.warn(
@@ -589,7 +589,7 @@ export function predictNumbers(generations: Generation[]): number[] {
 
   // Ensure no duplicates and exactly 5 numbers
   const uniqueResult = [...new Set(result)].filter(
-    (num) => num >= 1 && num <= 99
+    (num) => num >= 1 && num <= 90
   );
   if (uniqueResult.length !== 5) {
     logger.warn(

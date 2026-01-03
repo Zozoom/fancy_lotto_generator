@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
       const extracted = numbersStr
         .split(/[\s,;]+/)
         .map(n => parseInt(n.trim()))
-        .filter(n => !isNaN(n) && n >= 1 && n <= 99)
+        .filter(n => !isNaN(n) && n >= 1 && n <= 90)
         .slice(0, 5);
       
       if (extracted.length === 5) {
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
       
       for (const match of matches) {
         const num = parseInt(match[1]);
-        if (!isNaN(num) && num >= 1 && num <= 99 && !foundNumbers.includes(num)) {
+        if (!isNaN(num) && num >= 1 && num <= 90 && !foundNumbers.includes(num)) {
           foundNumbers.push(num);
           if (foundNumbers.length === 5) break;
         }
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
       
       for (const match of matches) {
         const num = parseInt(match[1]);
-        if (!isNaN(num) && num >= 1 && num <= 99 && !foundNumbers.includes(num)) {
+        if (!isNaN(num) && num >= 1 && num <= 90 && !foundNumbers.includes(num)) {
           foundNumbers.push(num);
           if (foundNumbers.length === 5) break;
         }
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Pattern 4: Look for sequences of 5 numbers (1-99) near each other
+    // Pattern 4: Look for sequences of 5 numbers (1-90) near each other
     if (numbers.length === 0) {
       const sequencePattern = /\b([1-9]|[1-9][0-9])\b[\s,;]+([1-9]|[1-9][0-9])\b[\s,;]+([1-9]|[1-9][0-9])\b[\s,;]+([1-9]|[1-9][0-9])\b[\s,;]+([1-9]|[1-9][0-9])\b/;
       const match = html.match(sequencePattern);
@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
           parseInt(match[3]),
           parseInt(match[4]),
           parseInt(match[5]),
-        ].filter(n => n >= 1 && n <= 99);
+        ].filter(n => n >= 1 && n <= 90);
         
         if (extracted.length === 5) {
           numbers = extracted.sort((a, b) => a - b);
@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
           parseInt(match1[3]),
           parseInt(match1[4]),
           parseInt(match1[5]),
-        ].filter(n => !isNaN(n) && n >= 1 && n <= 99);
+        ].filter(n => !isNaN(n) && n >= 1 && n <= 90);
       }
       
       // Pattern 2: Extract all numbers from table cells and take last 5
@@ -205,7 +205,7 @@ export async function GET(request: NextRequest) {
           const cellNumbers = cellContent
             .split(/\s+/)
             .map(n => parseInt(n.trim()))
-            .filter(n => !isNaN(n) && n >= 1 && n <= 99);
+            .filter(n => !isNaN(n) && n >= 1 && n <= 90);
           allNumbers.push(...cellNumbers);
         }
         
@@ -225,7 +225,7 @@ export async function GET(request: NextRequest) {
             .trim()
             .split(/\s+/)
             .map(n => parseInt(n.trim()))
-            .filter(n => !isNaN(n) && n >= 1 && n <= 99);
+            .filter(n => !isNaN(n) && n >= 1 && n <= 90);
           
           if (extracted.length === 5) {
             rowNumbers = extracted.sort((a, b) => a - b);

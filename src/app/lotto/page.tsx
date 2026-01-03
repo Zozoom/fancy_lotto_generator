@@ -98,7 +98,7 @@ export default function LottoPage() {
                 <Logo />
               </div>
               <p className="text-slate-600 dark:text-slate-400 text-sm">
-                Generate random numbers from 1 to 99
+                Generate random numbers from 1 to 90
               </p>
             </div>
 
@@ -136,7 +136,7 @@ export default function LottoPage() {
               {/* Number Grid */}
               <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-slate-300 dark:border-slate-600 max-h-96 overflow-y-auto">
                 <div className="grid grid-cols-10 gap-2">
-                  {Array.from({ length: 99 }, (_, i) => i + 1).map((num) => {
+                  {Array.from({ length: 90 }, (_, i) => i + 1).map((num) => {
                     const isSelected = selectedNumbers.includes(num);
                     const isDisabled = !isSelected && selectedNumbers.length >= 5;
                     return (

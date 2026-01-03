@@ -17,7 +17,7 @@ export function predictFromAnalytics(analytics: AnalyticsData): number[] {
   const numberScores: { [key: number]: number } = {};
   
   // Initialize all numbers
-  for (let i = 1; i <= 99; i++) {
+  for (let i = 1; i <= 90; i++) {
     numberScores[i] = 0;
   }
 
@@ -77,7 +77,7 @@ export function predictFromAnalytics(analytics: AnalyticsData): number[] {
   
   // Strategy 7: Digit Ending Distribution - Boost popular endings
   analytics.digitEndingDistribution.slice(0, 5).forEach((item) => {
-    for (let num = item.ending; num <= 99; num += 10) {
+    for (let num = item.ending; num <= 90; num += 10) {
       numberScores[num] += item.percentage * 0.3;
     }
   });
@@ -92,7 +92,7 @@ export function predictFromAnalytics(analytics: AnalyticsData): number[] {
       numberScores[num] += 2;
     }
   } else if (evenPercentage > 55) {
-    for (let num = 1; num <= 99; num += 2) {
+    for (let num = 1; num <= 90; num += 2) {
       numberScores[num] += 2;
     }
   }
@@ -127,7 +127,7 @@ export function predictFromAnalytics(analytics: AnalyticsData): number[] {
       }
 
       const selected = available[index];
-      if (selected && selected.num >= 1 && selected.num <= 99 && !candidate.includes(selected.num)) {
+      if (selected && selected.num >= 1 && selected.num <= 90 && !candidate.includes(selected.num)) {
         candidate.push(selected.num);
         available.splice(index, 1);
       } else {
@@ -153,7 +153,7 @@ export function predictFromAnalytics(analytics: AnalyticsData): number[] {
         else if (num >= 21 && num <= 40) comboRanges.add(1);
         else if (num >= 41 && num <= 60) comboRanges.add(2);
         else if (num >= 61 && num <= 80) comboRanges.add(3);
-        else if (num >= 81 && num <= 99) comboRanges.add(4);
+        else if (num >= 81 && num <= 90) comboRanges.add(4);
       });
       comboScore += comboRanges.size * 3; // Prefer diverse ranges
 
@@ -205,19 +205,19 @@ export function predictFromAnalytics(analytics: AnalyticsData): number[] {
     result = sortedNumbers
       .slice(0, 5)
       .map((n) => n.num)
-      .filter((num) => num >= 1 && num <= 99)
+      .filter((num) => num >= 1 && num <= 90)
       .sort((a, b) => a - b);
   }
 
   // Validate result
-  const validResult = result.filter((num) => num >= 1 && num <= 99 && !isNaN(num));
+  const validResult = result.filter((num) => num >= 1 && num <= 90 && !isNaN(num));
   if (validResult.length !== 5) {
     logger.warn("[ANALYTICS-PREDICTION] Invalid result, falling back to random");
     result = generateRandomNumbers(5);
   }
 
   // Ensure no duplicates
-  const uniqueResult = [...new Set(result)].filter((num) => num >= 1 && num <= 99);
+  const uniqueResult = [...new Set(result)].filter((num) => num >= 1 && num <= 90);
   if (uniqueResult.length !== 5) {
     logger.warn("[ANALYTICS-PREDICTION] Duplicates detected, generating random");
     result = generateRandomNumbers(5);

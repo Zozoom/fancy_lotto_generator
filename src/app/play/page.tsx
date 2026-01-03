@@ -60,7 +60,7 @@ export default function PlayPage() {
               Select Your Numbers
             </h1>
             <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm">
-              Choose 5 numbers from 1 to 99
+              Choose 5 numbers from 1 to 90
             </p>
           </div>
 
@@ -138,7 +138,7 @@ export default function PlayPage() {
               {/* Number Grid */}
               <div className="p-1 sm:p-2 md:p-3">
                 <div className="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-10 gap-0.5 sm:gap-1 md:gap-1.5">
-                {Array.from({ length: 99 }, (_, i) => i + 1).map((num) => {
+                {Array.from({ length: 90 }, (_, i) => i + 1).map((num) => {
                   const isSelected = selectedNumbers.includes(num);
                   const isDisabled = !isSelected && selectedNumbers.length >= 5;
                   return (

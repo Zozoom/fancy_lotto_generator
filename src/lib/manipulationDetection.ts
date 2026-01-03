@@ -78,9 +78,9 @@ function countRuns(sequence: string[]): number {
 function chiSquareTest(allGenerations: Generation[]): number {
   if (allGenerations.length < 5) return 0;
 
-  // Create frequency distribution for all numbers (1-99)
+  // Create frequency distribution for all numbers (1-90)
   const observedFreq: { [key: number]: number } = {};
-  for (let i = 1; i <= 99; i++) {
+  for (let i = 1; i <= 90; i++) {
     observedFreq[i] = 0;
   }
 
@@ -92,18 +92,18 @@ function chiSquareTest(allGenerations: Generation[]): number {
   });
 
   const totalSelections = allGenerations.length * 5;
-  const expectedFreq = totalSelections / 99;
+  const expectedFreq = totalSelections / 90;
 
   // Calculate chi-square statistic
   let chiSquare = 0;
-  for (let i = 1; i <= 99; i++) {
+  for (let i = 1; i <= 90; i++) {
     const observed = observedFreq[i] || 0;
     const diff = observed - expectedFreq;
     chiSquare += (diff * diff) / expectedFreq;
   }
 
   // Normalize to 0-100 scale (higher chi-square = more deviation from uniform)
-  // For 99 degrees of freedom, critical value around 123, so scale accordingly
+  // For 90 degrees of freedom, critical value around 113, so scale accordingly
   const score = Math.min(100, (chiSquare / 200) * 100);
   return score;
 }
@@ -124,7 +124,7 @@ function serialCorrelationTest(generations: Generation[]): number {
     const overlap = prev.filter(n => curr.includes(n)).length;
     const similarity = overlap / 5; // Normalize to 0-1
     
-    // Random expectation: ~0.05 overlap (5/99 chance per number)
+    // Random expectation: ~0.056 overlap (5/90 chance per number)
     const expectedSimilarity = 0.05;
     const deviation = Math.abs(similarity - expectedSimilarity);
     
@@ -192,7 +192,7 @@ function detectSpreadPreference(numbers: number[]): number {
  */
 function detectMiddleRangePreference(numbers: number[]): number {
   const lowRange = numbers.filter(n => n >= 1 && n <= 20).length;
-  const highRange = numbers.filter(n => n >= 80 && n <= 99).length;
+  const highRange = numbers.filter(n => n >= 80 && n <= 90).length;
   const middleRange = numbers.filter(n => n >= 30 && n <= 70).length;
   
   // Random expectation: ~1 number in each extreme range, ~2-3 in middle
@@ -305,7 +305,7 @@ export function buildUserProfile(generations: Generation[]): UserProfile {
     '21-40': 0,
     '41-60': 0,
     '61-80': 0,
-    '81-99': 0,
+    '81-90': 0,
   };
 
   // Track favorite numbers
@@ -324,7 +324,7 @@ export function buildUserProfile(generations: Generation[]): UserProfile {
       else if (num >= 21 && num <= 40) rangeCounts['21-40']++;
       else if (num >= 41 && num <= 60) rangeCounts['41-60']++;
       else if (num >= 61 && num <= 80) rangeCounts['61-80']++;
-      else if (num >= 81 && num <= 99) rangeCounts['81-99']++;
+      else if (num >= 81 && num <= 90) rangeCounts['81-90']++;
 
       const ending = num % 10;
       digitEndingCounts[ending] = (digitEndingCounts[ending] || 0) + 1;

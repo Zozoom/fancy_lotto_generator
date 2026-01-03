@@ -51,16 +51,16 @@ export function validateNumbers(numbers: unknown): numbers is number[] {
   if (!Array.isArray(numbers) || numbers.length !== 5) {
     return false;
   }
-  return numbers.every(num => typeof num === 'number' && num >= 1 && num <= 99);
+  return numbers.every(num => typeof num === 'number' && num >= 1 && num <= 90);
 }
 
 /**
- * Generate random unique numbers (1-99)
+ * Generate random unique numbers (1-90)
  */
 export function generateRandomNumbers(count: number = 5): number[] {
   const numbers: number[] = [];
   while (numbers.length < count) {
-    const num = Math.floor(Math.random() * 99) + 1;
+    const num = Math.floor(Math.random() * 90) + 1;
     if (!numbers.includes(num)) {
       numbers.push(num);
     }

@@ -12,7 +12,7 @@ An advanced, AI-powered lottery number generator and prediction system built wit
 
 ### 🎯 Core Functionality
 
-- **Smart Number Generation**: Generate random lottery numbers (1-99) with intelligent selection
+- **Smart Number Generation**: Generate random lottery numbers (1-90) with intelligent selection
 - **Dual Prediction Methods**:
   - **History-Based Prediction**: Advanced algorithm using:
     - Exponential decay recency analysis
@@ -194,7 +194,7 @@ lottery-generator/
 2. Choose your prediction method:
    - **Predict (History)**: Uses advanced behavioral analysis and manipulation detection
    - **Predict (Analytics)**: Uses statistical patterns (hot numbers, trends, etc.)
-   - **Manual Selection**: Choose 5 numbers (1-99) yourself
+   - **Manual Selection**: Choose 5 numbers (1-90) yourself
 3. Click **Play** to generate results
 4. View matches, statistics, and celebrate with confetti!
 
