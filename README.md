@@ -4,7 +4,7 @@ An advanced, AI-powered lottery number generator and prediction system built wit
 
 ## 📸 Screenshots
 
-![Lottery Generator Demo](./public/images/LottoGIF.gif)
+![Lottery Generator Demo](./public/images/010311-ezgif.com-video-to-gif-converter.gif)
 
 ## ✨ Features
 
