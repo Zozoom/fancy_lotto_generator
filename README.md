@@ -4,35 +4,7 @@ An advanced, AI-powered lottery number generator and prediction system built wit
 
 ## 📸 Screenshots
 
-### Landing Page
-
-![Landing Page](./public/images/Screenshot%202026-01-02%20233003.png)
-
-### Play Page
-
-![Play Page](./public/images/Screenshot%202026-01-02%20233011.png)
-
-![Play Page](./public/images/Screenshot%202026-01-02%20233020.png)
-
-### Generate Page with Matches
-
-![Generate Page with Matches](./public/images/Screenshot%202026-01-02%20233904.png)
-
-### Generate Page with No Matches
-
-![Generate Page with No Matches](./public/images/Screenshot%202026-01-02%20233822.png)
-
-### History Page
-
-![History Page](./public/images/Screenshot%202026-01-02%20233912.png)
-
-### Settings Page
-
-![Settings Page](./public/images/Screenshot%202026-01-02%20233921.png)
-
-### Info Page
-
-![Info Page](./public/images/Screenshot%202026-01-02%20233928.png)
+![Lottery Generator Demo](./public/images/LottoGIF.gif)
 
 ## ✨ Features
 
@@ -299,11 +271,13 @@ Statistical approach using 8 strategies:
 Comprehensive detection system with multiple tests:
 
 **Statistical Tests:**
+
 - **Runs Test**: Detects non-random odd/even or high/low patterns
 - **Chi-Square Test**: Checks deviation from uniform distribution
 - **Serial Correlation**: Detects patterns in consecutive draws
 
 **Behavioral Patterns:**
+
 - Consecutive number avoidance
 - Spread-out number preference
 - Middle-range preference (avoiding extremes)
@@ -311,6 +285,7 @@ Comprehensive detection system with multiple tests:
 - Visual/aesthetic patterns (balanced odd/even, round numbers)
 
 **Scoring:**
+
 - Weighted combination of all tests (0-100%)
 - Confidence increases with more data
 - Patterns displayed in history page
@@ -349,10 +324,14 @@ See [PREDICTION.md](./PREDICTION.md) for detailed algorithm documentation.
     "numbers": [1, 2, 3, 4, 5],
     "date": "ISO-date-string",
     "predictedNumbers": [1, 2, 3, 4, 5], // optional
-    "manipulationScore": { // automatically calculated
+    "manipulationScore": {
+      // automatically calculated
       "score": 45,
       "confidence": 75,
-      "patterns": ["Non-random odd/even patterns", "Prefers middle-range numbers"]
+      "patterns": [
+        "Non-random odd/even patterns",
+        "Prefers middle-range numbers"
+      ]
     }
   }
   ```
