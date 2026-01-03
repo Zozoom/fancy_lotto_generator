@@ -353,7 +353,7 @@ Tracks user behavior (favorite ranges/numbers, digit endings, compensation patte
 
 ## 📄 License
 
-This project is private and proprietary.
+This project is private and proprietary. See [LICENSE.md](./LICENSE.md) for details on permitted educational use and prohibited commercial/monetization activities.
 
 ## 👤 Author
 
